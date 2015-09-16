@@ -1,3 +1,7 @@
+import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+import java.net.*;
 public class Chat
 {
     public enum MSG
@@ -9,7 +13,8 @@ public class Chat
         public class MainMessage implements Serializable
         {
             MSG messageID;
-            //...
+            String ip;
+            int port;
             public MainMessage()
             {
                 
@@ -23,36 +28,39 @@ public class Chat
             }
             //...
         }
-    }
-    public void run()
-    {
-        //...
-        serveSock = new ServerSocket(port);
-        
-        while (true)
-        {
-            Docket clntSock = servSock = servSock.accept();//Get client connections
-            ObjectInputStream ois = new ObjectInputStream(clntSock.getInput);
-            ObjectOutputStream oos = new ObjectOutputStream(clntSock.getOutput);
-            MainMessage m = (MainMessage)ois.readObject();
-            //Handle Messages
-            //...
-            clntSock.close();
-        }
-    }
-
-
-    private class Client  implements Runnable
-    {
+        //Server Run
         public void run()
         {
+            //...
+            int port;
+            ServerSocket servSock;
+            servSock = new ServerSocket(port);
+            while (true)
+            {
+                Socket clntSock = servSock.accept();//Get client connections
+                ObjectInputStream ois = new ObjectInputStream(clntSock.getInputStream());
+                ObjectOutputStream oos = new ObjectOutputStream(clntSock.getOutputStream());
+                MainMessage m = (MainMessage)ois.readObject();
+                //Handle Messages
+                //...
+                clntSock.close();
+            }
+        }
+    }
+    private class Client implements Runnable
+    {
+        //Client Run
+        public void run()
+        {
+            String ip;
+            int port;
             while(true)
             {
                 //Read commands from the keyboard
                 //prepare message m
                 Socket socket = new Socket(ip, port);
-                ObjectOutputStream oos = new ObjectOutputStream(clntSock.getOutput);
-                ObjectInputStream ois = new ObjectInputStream(clntSock.getInput);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 oos.writeObject(m);
                 ois.read();
                 socket.close();
@@ -66,7 +74,23 @@ public class Chat
         Thread client = new Thread(new Client());
         server.start();
         client.start();
-        client.join();
-        server.join();
+        try
+        {
+            client.join();
+        }
+        catch (InterruptedException e)
+        {
+            //TODO auto generated catch block
+            e.printStackTrace();
+        }
+        try
+        {
+            server.join();
+        }
+        catch (InterruptedException e)
+        {
+            //TODO auto generated catch block
+            e.printStackTrace();
+        }
     }
 }
