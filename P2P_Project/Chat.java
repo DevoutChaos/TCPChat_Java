@@ -4,10 +4,6 @@ import java.util.*;
 import java.net.*;
 public class Chat
 {
-    public enum MSG
-    {
-        PUT, REQUEST, REPLY, LEAVE
-    }
     private class Server implements Runnable
     {
         public class MainMessage implements Serializable
