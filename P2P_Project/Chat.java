@@ -4,6 +4,13 @@ import java.util.*;
 import java.net.*;
 public class Chat
 {
+    int myPort;          
+    String myIP;          
+    String nextIP;    
+    int nextPort;       
+    String idSource;
+    String idDest;
+    String text;
     private class Server implements Runnable
     {
         //Server Run
@@ -36,13 +43,14 @@ public class Chat
             {
                 //Read commands from the keyboard
                 //prepare message m
+                MainMessage m = new MainMessage();
                 Socket socket = new Socket(ip, port);
                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 oos.writeObject(m);
                 ois.read();
                 socket.close();
-            }
+        }
         }
     }
     public Chat(String Id, int port)
@@ -52,6 +60,7 @@ public class Chat
         Thread client = new Thread(new Client());
         server.start();
         client.start();
+        myIP = ;
         try
         {
             client.join();
@@ -80,7 +89,7 @@ public class Chat
         try
         {
             InetAddress ip = InetAddress.getLocalHost();
-            Chat chat = new Chat(args[0], Integer.parseInt(args[1]), ip.getHostAddress());       
+            Chat chat = new Chat(args[0], Integer.parseInt(args[1]), myIP.getHostAddress());       
         }
         catch(UnknownHostException p)
         {
