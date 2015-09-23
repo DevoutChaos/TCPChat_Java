@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.params=
+comment0.target=MainMessage()
+comment1.params=ip\ port\ nxtIp\ nxtPort
+comment1.target=MainMessage(java.lang.String,\ int,\ java.lang.String,\ int)
+comment2.params=ip\ port
+comment2.target=MainMessage(java.lang.String,\ int)
+comment3.params=nxtPort\ nxtIp
+comment3.target=MainMessage(int,\ java.lang.String)
+comment4.params=idSrc\ idDes\ txt
+comment4.target=MainMessage(java.lang.String,\ java.lang.String,\ java.lang.String)
+numComments=5

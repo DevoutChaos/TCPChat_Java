@@ -6,24 +6,6 @@ public class Chat
 {
     private class Server implements Runnable
     {
-        public class MainMessage implements Serializable
-        {
-            MSG messageID;
-            String ip;
-            int port;
-            public MainMessage()
-            {
-                
-            }
-            
-            public MainMessage(MSG msg, String Ip, int Port)
-            {
-                this.messageID = msg;
-                this.ip = Ip;
-                this.port = Port;
-            }
-            //...
-        }
         //Server Run
         public void run()
         {
