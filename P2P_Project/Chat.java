@@ -89,4 +89,20 @@ public class Chat
             e.printStackTrace();
         }
     }
+    public static void main(String[] args) {
+        if (args.length < 2 ) 
+         {  
+            System.out.println("Parameter: <id> <port>");
+            return;
+        }
+        try
+        {
+            InetAddress ip = InetAddress.getLocalHost();
+            Chat chat = new Chat(args[0], Integer.parseInt(args[1]), ip.getHostAddress());       
+        }
+        catch(UnknownHostException p)
+        {
+            System.out.println("Parameter: <id> <port>");
+        }     
+    }
 }

@@ -17,14 +17,11 @@ public class MainMessage
     String idDest;
     String text;
     
-// LEAVE   : myIP, myPort, nextIP, nextPort
-// REQUEST :  myIP, myPort
-// REPLY     :  nextPort, nextIP
-// PUT        : idSource, idDest, text
     public MainMessage()
     {
         
     }
+    // LEAVE   : myIP, myPort, nextIP, nextPort
     public MainMessage(String ip, int port, String nxtIp, int nxtPort)
     {
         myIP = ip;
@@ -32,16 +29,19 @@ public class MainMessage
         nextIP = nxtIp;
         nextPort = nxtPort;
     }
+    // REQUEST :  myIP, myPort
      public MainMessage(String ip, int port)
     {
         myIP = ip;
         myPort = port;
     }
+    // REPLY     :  nextPort, nextIP
      public MainMessage(int nxtPort, String nxtIp)
     {
         nextPort = nxtPort;
         nextIP = nxtIp;
     }
+    // PUT        : idSource, idDest, text
      public MainMessage(String idSrc, String idDes, String txt)
     {
         idSource = idSrc;
