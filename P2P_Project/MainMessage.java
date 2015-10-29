@@ -2,12 +2,9 @@ import java.io.Serializable;
 import java.io.*;
 import java.util.*;
 import java.net.*;
-public class MainMessage
+public class MainMessage implements Serializable
 {
-    public enum MSG
-    {
-         REQUEST, REPLY, LEAVE, PUT
-    }
+    
     MSG messageID; // Id of the message REQUEST = 0, REPLY = 1, LEAVE =2, PUT = 3
     int myPort;          
     String myIP;          
@@ -51,5 +48,12 @@ public class MainMessage
         idSource = idSrc;
         idDest = idDes;
         text = txt;
+    }
+    
+    public MainMessage (MSG msg, String Ip, int Port)
+    {
+        this.messageID = msg;
+        myIP = Ip;
+        myPort = Port;
     }
 }

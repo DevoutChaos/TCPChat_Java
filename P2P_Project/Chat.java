@@ -2,6 +2,7 @@ import java.io.Serializable;
 import java.io.*;
 import java.util.*;
 import java.net.*;
+import java.util.Scanner;
 public class Chat
 {
     String myId;
@@ -9,9 +10,6 @@ public class Chat
     String myIP;          
     String nextIP;    
     int nextPort;       
-    String idSource;
-    String idDest;
-    String text;
     private class Server implements Runnable
     {
         //Server Run
@@ -19,31 +17,68 @@ public class Chat
         {
             //...
             ServerSocket servSock = null;
-            try {
+            try 
+            {
                 servSock = new ServerSocket ( myPort );
-            } catch (IOException e1) {
+            } 
+            catch (IOException e1) 
+            {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             } 
             while ( true )
             {
+                MainMessage reply = null;
                 Socket clntSock;
-                try {
-                    clntSock = servSock . accept ();
-                    ObjectInputStream   ois = new ObjectInputStream ( clntSock . getInputStream ());
-                    ObjectOutputStream oos = new ObjectOutputStream( clntSock . getOutputStream ());
-                    MainMessage m = (MainMessage) ois.readObject (); // Handle Messages
-                    //m.messageID is null
-                    //System.out.println(m);
+                try 
+                {
+                    clntSock = servSock.accept ();
+                    ObjectInputStream ois = new ObjectInputStream(clntSock.getInputStream());
+                    ObjectOutputStream oos = new ObjectOutputStream(clntSock.getOutputStream());
+                    MainMessage m = (MainMessage)ois.readObject (); // Handle Messages
                     switch(m.messageID)
                     {
                         case REQUEST:
-                        System.out.println("Request Received: "+m.myPort);
+                        System.out.println("'REQUEST' received: "+m.myPort);
+                        reply = new MainMessage(nextPort, nextIP);
+                        nextIP = m.myIP;
+                        nextPort = m.myPort;
+                        oos.writeObject(reply);
                         break;
+                        
                         case PUT:
+                        System.out.println("'PUT' received from: " + m.idSource);
+                        if((myId).equals(m.idDest))
+                        {
+                            System.out.println(m.text);
+                        }
+                        else if((myId).equals(m.idSource))
+                        {
+                            System.out.println("Message was not received!");
+                            reply = new MainMessage(myPort, myIP);
+                            oos.writeObject(reply);
+                        }
+                        else
+                        {
+                            reply = new MainMessage(m.idSource, m.idDest, m.text);
+                            oos.writeObject(reply);
+                        }
                         break;
+                        
                         case LEAVE:
+                        System.out.println("'LEAVE' received: " + m.myPort);
+                        if(nextIP == m.myIP && nextPort == m.myPort)
+                        {
+                            nextIP = m.nextIP;
+                            nextPort = m.nextPort;
+                        }
+                        if(myIP == m.myIP && myPort == m.myPort)
+                        {
+                            return;
+                        }
+                        oos.writeObject(m);
                         break;
+                        
                         default:
                         break;
                     }
@@ -51,18 +86,15 @@ public class Chat
                     //construct new message
                     //if put
                     //send to next
-                    clntSock . close ();
-                    //      
-                } 
+                    clntSock.close();
+                }
                 catch (IOException e) 
                 {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
 
                 }   // Get client   connections
                 catch (ClassNotFoundException e) 
                 {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -78,7 +110,7 @@ public class Chat
             MainMessage m = null;
             String ip = null;
             int port = 0;
-            while ( true ) 
+            while (true) 
             {
                 // Read commands form the keyboard
                 //request first
@@ -98,33 +130,52 @@ public class Chat
                     //  prompt for the ip and port to connect to
                     System.out.println("Input IP to connect to:");
                     ip = scanner.next();
-                    //System.out.println("Input port to connect to:");
-                    //port = scanner.nextInt();
-                    System.out.println("Connecting on specified port: "+myPort);
-                    port = myPort;
+                    System.out.println("Input port to connect to:");
+                    port = scanner.nextInt();
+                    System.out.println("Connecting on specified port: " + port);
                     System.out.println("Sending Request...");
-                    //create REQUEST message with your ip and port
                     m = new MainMessage(myIP, myPort);
                     break;
 
                     case "PUT":
+                    String receiverId;
+                    String msgToSend;
+                    System.out.println("Input the recipient of message: ");
+                    receiverId = scanner.next();
+                    System.out.println("Input message: ");
+                    //One word only
+                    msgToSend = scanner.next();
+                    m = new MainMessage(myId, receiverId, msgToSend);
                     break;
+                    
                     case"LEAVE":
-                    break;
+                    System.out.println("Leaving chat");
+                    m = new MainMessage(myIP, myPort, nextIP, nextPort);
+                    nextIP = myIP;
+                    nextPort = myPort;
+                    System.out.println("Successfully left the chat");
+                    return;
                 }
-
-                //create an id in command line
-                ///user inputs request
-                //Prepare message m
-
                 Socket socket;
                 try 
                 {
                     socket = new Socket(ip,port);//ip and port to connect to
-                    ObjectOutputStream oos = new ObjectOutputStream( socket . getOutputStream ());
-                    ObjectInputStream	ois = new ObjectInputStream ( socket . getInputStream ());
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                    ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                     oos.writeObject (m);
-                    ois.read (); 
+                    try
+                    {
+                        MainMessage received = (MainMessage)ois.readObject();
+                        if(received.messageID.REPLY != null)
+                        {
+                            nextIP = received.nextIP;
+                            nextPort = received.nextPort;
+                        }
+                    }
+                    catch(ClassNotFoundException e)
+                    {
+                        e.printStackTrace();
+                    }
                     socket.close ();
                 } 
                 catch (IOException e) 
@@ -138,17 +189,17 @@ public class Chat
     }
     public Chat(String Id, int port, String Ip)
     {
+        myIP = Ip;
+        myPort = port;
+        myId = Id;
+        nextPort = port;
+        nextIP = Ip;
+        
         //Initialisation of the peer
         Thread server = new Thread(new Server());
         Thread client = new Thread(new Client());
         server.start();
         client.start();
-
-        myIP = Ip;
-        myPort = port;
-        myId = Id;
-        nextPort =port;
-        nextIP = Ip;
         try
         {
             client.join();
@@ -172,13 +223,9 @@ public class Chat
     public static void main(String[] args) {
         if (args.length != 2 ) 
         {  
-            System.out.println("1Parameter: <id> <port>");
+            System.out.println("(err1)Parameter: <id> <port>");
             return;
         }
-        //get Id argument 
-        String Id = args[0];
-        //get port argument
-        int port = Integer.parseInt(args[1]);
         try
         {
             InetAddress ip = InetAddress.getLocalHost();
@@ -186,7 +233,7 @@ public class Chat
         }
         catch(UnknownHostException p)
         {
-            System.out.println("2Parameter: <id> <port>");
+            System.out.println("(err2)Parameter: <id> <port>");
         }     
     }
 
